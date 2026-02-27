@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "render.hpp"
 
 int main()
 {
@@ -60,51 +61,8 @@ int main()
     }
 
     // --- Render --- //
-    {
-      BeginTextureMode(render_target);
-      ClearBackground(WHITE);
-      BeginMode2D(camera);
-      
-      // Draw scene
-      DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
-      DrawRectangle(100, 120, 15, 75, GREEN);
-
-      EndMode2D();
-
-      // Draw HUD
-      int pos_x = 10, pos_y = 10, font_size = 40;
-      const char *text = TextFormat(
-        "FPS: %d\nX: %f\nY: %f", 
-        GetFPS(), player.x, player.y
-      );
-      DrawText(text, pos_x, pos_y, font_size, BLACK);
-      EndTextureMode();
-      
-      // render to screen
-      BeginDrawing();
-      ClearBackground(BLACK);
-      float scale = fmin(
-        GetScreenWidth() / game_screen_w,
-        GetScreenHeight() / game_screen_h
-      );
-
-      float scaled_w = game_screen_w * scale;
-      float scaled_h = game_screen_h * scale;
-      float offset_x = (GetScreenWidth() - scaled_w) * 0.5f;
-      float offset_y = (GetScreenHeight() - scaled_h) * 0.5f;
-
-      Rectangle src = {
-        0.0f,
-        0.0f,
-        (float)render_target.texture.width,
-        -(float)render_target.texture.height
-      };
-      Rectangle dst = { offset_x, offset_y, scaled_w, scaled_h };
-  
-      DrawTexturePro(render_target.texture, src, dst, {0, 0}, 0.0f, WHITE);
-
-      EndDrawing();
-    }
+    render_scene(render_target, camera);
+    render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();
 }
