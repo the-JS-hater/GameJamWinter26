@@ -34,7 +34,6 @@ int main()
     1.0f // Camera zoom (scaling) 
   };
 
-
   while(!WindowShouldClose())
   {
     float w_input, a_input, s_input, d_input;
@@ -46,6 +45,8 @@ int main()
       a_input = IsKeyDown(KEY_A);
       s_input = IsKeyDown(KEY_S);
       d_input = IsKeyDown(KEY_D);
+
+      if (IsKeyPressed(KEY_F)) ToggleFullscreen();
     }
 
     // --- Update --- //
