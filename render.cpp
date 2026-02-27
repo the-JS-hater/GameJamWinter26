@@ -1,13 +1,18 @@
 #include "render.hpp"
 
 
-void render_scene(RenderTexture2D render_target, Camera2D camera)
-{
+void render_scene(
+  RenderTexture2D render_target, 
+  Camera2D camera, 
+  Player player
+) {
   BeginTextureMode(render_target);
   ClearBackground(WHITE);
   BeginMode2D(camera);
   
-  // Draw scene
+  //  Draw ground
+  DrawRectangle(-1000, 0, 3000, 2000, GREEN);
+  DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
 
   EndMode2D();
 
