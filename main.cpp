@@ -12,14 +12,11 @@ int main()
   { 
     float x, y, w, h, speed;
   };
-  
   TestPlayer player {};
   player.speed = 100.0f;
   player.w = 20.0f;
   player.h = 40.0f;
   
-  //float res_w {720.0f}, res_h {480.0f};
-  //float res_w {1280.0f}, res_h {720.0f};
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
@@ -93,7 +90,6 @@ int main()
 
       float scaled_w = game_screen_w * scale;
       float scaled_h = game_screen_h * scale;
-      
       float offset_x = (GetScreenWidth() - scaled_w) * 0.5f;
       float offset_y = (GetScreenHeight() - scaled_h) * 0.5f;
 
