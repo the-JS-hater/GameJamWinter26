@@ -37,34 +37,37 @@ int main()
     // --- Input --- //
     {
       w_input = IsKeyPressed(KEY_W);
-      a_input = IsKeyDown(KEY_A);
+      a_input = IsKeyPressed(KEY_A);
       //s_input = IsKeyDown(KEY_S);
-      d_input = IsKeyDown(KEY_D);
+      d_input = IsKeyPressed(KEY_D);
 
       if (IsKeyPressed(KEY_F)) ToggleFullscreen();
     }
 
     // --- Update --- //
     { 
-      float const impulse = 2500.0f; 
       float const jump_impulse = 500.0f; 
-      float const mass = 20.0f;
+      float const accel = 500.0f;
+    
+      if (a_input) player.facing = Facing::LEFT;
+      if (d_input) player.facing = Facing::RIGHT;
       
-      static float jump_cooldown {0};
-
-      float ax{0.0f}, ay{0.0f};
-      ax = ((bool)a_input ^ (bool)d_input) * impulse / mass;
-      player.dx += ax * dt;
+      if (player.facing == Facing::RIGHT)
+        player.dx +=  accel * dt;
+      else
+        player.dx -=  accel * dt;
+  
       if (fabs(player.dx) > player.max_speed)
       {
         player.dx = player.dx < 0.0f ? 
           -player.max_speed : 
           player.max_speed;
       }
-      printf("player speed: %f\n", player.dx);
-
-      player.x += d_input * player.dx * dt;
-      player.x -= a_input * player.dx * dt;
+      printf("player dx: %f\n", player.dx);
+      player.x += player.dx * dt;
+      
+      // jumping
+      static float jump_cooldown {0};
       
       if (player.y + player.h > 0.0f and player.dy > 0.0f) player.dy = 0.0f;
       if (player.y + player.h < 0.0f) 
@@ -80,6 +83,7 @@ int main()
       }
       player.y += player.dy * dt;
       
+      // update camera
       camera.target = {
         Lerp(camera.target.x, player.x, 0.001), 
         Lerp(camera.target.y, player.y, 0.001)
