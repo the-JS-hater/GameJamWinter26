@@ -66,22 +66,14 @@ int main()
       else
         player.dx -=  accel * dt;
     
-      // cap speed
-      if (fabs(player.dx) > player.max_speed)
-      {
-        player.dx = player.dx < 0.0f ? 
-          -player.max_speed : 
-          player.max_speed;
-      }
-      player.x += player.dx * dt;
-
       // collision
       static float const tile_size = 128.0f;
       
       int const rows = test_level.tiles.size();
       int const cols = test_level.tiles.empty() ? 
           0 : test_level.tiles[0].size();
-      int const left = std::max(0, (int)std::floor(player.x / tile_size));
+      printf("%d\n", std::max(-1, (int)std::floor(player.x / tile_size)));
+      int const left = std::max(-1, (int)std::floor(player.x / tile_size));
       int const right =
         std::min(cols - 1,(int)std::floor((player.x + player.w) / tile_size));
       int const top = std::max(0, (int)std::floor(player.y / tile_size));
@@ -90,29 +82,17 @@ int main()
       
       // jumping
       static float jump_cooldown {0};
+      static bool is_grounded {false};
+
       jump_cooldown -= 1.0f * dt;
       if (jump_cooldown < 0.0f) jump_cooldown = 0.0f;
       if (w_input and jump_cooldown < 0.001f)
       {
         jump_cooldown += 1.0f;
         player.dy -= jump_impulse;
+        is_grounded = false;
       }
 
-      { // horizontal collision
-        bool left_collision = 
-          (int)test_level.get(left, top)
-          or 
-          (int)test_level.get(left, bottom);
-        if (player.facing == Facing::LEFT and left_collision)
-          player.facing = Facing::RIGHT;
-        
-        bool right_collision = 
-          (int)test_level.get(right, top)
-          or 
-          (int)test_level.get(right, bottom);
-        if (player.facing == Facing::RIGHT and right_collision)
-          player.facing = Facing::LEFT;
-      }
       player.dy += gravity * dt; 
       { // vertical collision
         bool top_collision = 
@@ -123,10 +103,48 @@ int main()
           (int)test_level.get(left, bottom)
           or 
           (int)test_level.get(right, bottom);
-        if (top_collision or bottom_collision) player.dy = 0.0f;
+        if (top_collision) player.dy = std::fmax(0.0f, player.dy);
+        if (bottom_collision) 
+        {
+          player.dy = std::fmin(0.0f, player.dy);
+          is_grounded = true;
+        } else {
+          is_grounded = false;
+        }
       }
       player.y += player.dy * dt;
+      { // horizontal collision
+        bool left_collision = 
+          (int)test_level.get(left, top)
+          or 
+          (!is_grounded and (int)test_level.get(left, bottom));
+        if (player.facing == Facing::LEFT and left_collision)
+        {
+          player.facing = Facing::RIGHT;
+          player.dx *= -1;
+        }
+        
+        bool right_collision = 
+          (int)test_level.get(right, top)
+          or 
+          (!is_grounded and (int)test_level.get(right, bottom));
+        if (player.facing == Facing::RIGHT and right_collision)
+        {
+          player.facing = Facing::LEFT;
+          player.dx *= -1;
+        }
+      }
       
+      // cap speed
+      if (fabs(player.dx) > player.max_speed)
+      {
+        player.dx = player.dx < 0.0f ? 
+          -player.max_speed : 
+          player.max_speed;
+      }
+      // integrate horizontal movement
+      player.x += player.dx * dt;
+
       // update camera
       camera.target = {
         Lerp(camera.target.x, player.x, 0.001), 
