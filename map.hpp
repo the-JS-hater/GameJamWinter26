@@ -15,6 +15,6 @@ struct Map {
   Map();
   Map(int width, int height);
   Map(std::string file_name);
-  TileType Map::get(int x, int y) const;
+  TileType get(int x, int y) const;
   void draw();
 };
