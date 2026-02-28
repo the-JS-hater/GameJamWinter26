@@ -9,7 +9,8 @@
 
 enum class TileType {
   EMPTY,
-  GROUND
+  GROUND,
+  ENDOFTYPES
 };
 
 std::ostream& operator<<(std::ostream& os, const TileType& tile);
