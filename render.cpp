@@ -42,7 +42,6 @@ void draw_map(Map const& map) {
       }
       int world_x = x * tile_size;
       int world_y = y * tile_size;
-      //printf("drawing %d %d %d %d %d\n", ground_tex.format, ground_tex.height, ground_tex.id, ground_tex.mipmaps, ground_tex.width);
       DrawTexture(*tex, world_x, world_y, WHITE);
     }
 }
@@ -52,7 +51,12 @@ void render_player(Player const& player) {
 
   int frame = ((int)(GetTime() * fps)) % player_animation_frames;
   Rectangle current_frame{frame * player_size, 0, player_size, player_size};
-  DrawTextureRec(player_moving_right_tex, current_frame, Vector2{player.x, player.y}, WHITE);
+  DrawTextureRec(
+    player_moving_right_tex, 
+    current_frame, 
+    Vector2{player.x - 0.5f * player.w, player.y - 0.5f * player.h}, 
+    WHITE
+  );
   DrawRectangleLinesEx(
     {player.x, player.y, player.w, player.h},
     3,
@@ -83,23 +87,6 @@ void render_scene(
   int const bottom =
     std::min(rows - 1, (int)std::floor((player.y + player.h) / tile_size));
   
-  DrawRectangleLinesEx(
-    {(left) * tile_size, top * tile_size, tile_size, tile_size},
-    3, BLUE
-  );
-  DrawRectangleLinesEx(
-    {(left) * tile_size, bottom * tile_size, tile_size, tile_size},
-    3, BLUE        
-  );
-  DrawRectangleLinesEx(
-    {(right) * tile_size, top * tile_size, tile_size, tile_size}, 
-    3, BLUE
-  );
-  DrawRectangleLinesEx(
-    {(right) * tile_size, bottom * tile_size, tile_size, tile_size},
-    3, BLUE    
-  );
-
   render_player(player);
   EndMode2D();
 
