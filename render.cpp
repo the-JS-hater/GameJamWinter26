@@ -10,8 +10,9 @@ Texture2D player_moving_right_tex;
 Texture2D ground_tex;
 Texture2D breakable_ground_tex;
 
-int const mountainAmount = 3;
-Texture2D mountains[mountainAmount];
+int const backgroundAmount = 6;
+Texture2D backgrounds[backgroundAmount];
+
 
 Texture2D scale(Texture2D tex, int width, int height) {
   Image im = LoadImageFromTexture(tex);
@@ -24,16 +25,19 @@ void init_resources() {
   ground_tex = scale(LoadTexture("assets/ground.png"), tile_size, tile_size);
   breakable_ground_tex = scale(LoadTexture("assets/breakable_ground.png"), tile_size, tile_size);
 
-  mountains[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
-  mountains[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
-  mountains[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
+  backgrounds[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
+  backgrounds[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
+  backgrounds[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
+  backgrounds[3] = scale(LoadTexture("assets/house1.png"), 1920, 1080);
+  backgrounds[4] = scale(LoadTexture("assets/house2.png"), 1920, 1080);
+  backgrounds[5] = scale(LoadTexture("assets/house3.png"), 1920, 1080);
 } 
 
 void draw_background(Camera2D camera){
     float const parallax = -0.5;
-    for(int i = 0; i < mountainAmount; i++){
+    for(int i = -3; i < backgroundAmount - 3; i++){
       for(int j = -2; j < 2; j++){
-        DrawTexture(mountains[i], camera.target.x + fmod(camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 40*i - camera.offset.y, WHITE);
+        DrawTexture(backgrounds[i+3], camera.target.x + fmod(camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 80*i - camera.offset.y, WHITE);
       }
     }
   return;

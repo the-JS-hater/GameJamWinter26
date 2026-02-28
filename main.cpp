@@ -19,6 +19,7 @@ int main()
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
+  void SetTextureFilter(render_target, 0);
 
   Player player = Player(300, 400);
   Map test_level = Map("levels/test.wad");
