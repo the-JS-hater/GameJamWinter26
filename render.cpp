@@ -53,6 +53,11 @@ void render_player(Player const& player) {
   int frame = ((int)(GetTime() * fps)) % player_animation_frames;
   Rectangle current_frame{frame * player_size, 0, player_size, player_size};
   DrawTextureRec(player_moving_right_tex, current_frame, Vector2{player.x, player.y}, WHITE);
+  DrawRectangleLinesEx(
+    {player.x, player.y, player.w, player.h},
+    3,
+    GREEN
+  );
 }
 
 void render_scene(
