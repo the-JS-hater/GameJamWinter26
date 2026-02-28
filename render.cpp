@@ -2,7 +2,7 @@
 #include "map.hpp"
 #include <cmath>
 
-#define tile_size 128
+#define tile_size 64
 #define player_size tile_size * 2
 #define player_animation_frames 4
 
