@@ -42,3 +42,10 @@ Map::Map(std::string file_name) {
   }
   file.close();
 }
+
+TileType Map::get(int x, int y) const {
+  if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
+    return TileType::EMPTY;
+  }
+  return tiles[y][x];
+}
