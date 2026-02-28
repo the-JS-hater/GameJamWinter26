@@ -1,6 +1,9 @@
 #include "map.hpp"
+#include "player.hpp"
+#include "raylib.h"
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 
 
