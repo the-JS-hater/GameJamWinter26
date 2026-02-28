@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <cmath>
 
 #include "render.hpp"
 #include "player.hpp"
@@ -33,6 +34,8 @@ int main()
     0.0f, // Camera rotation in degrees
     1.0f // Camera zoom (scaling) 
   };
+
+  init_resources();
 
   while(!WindowShouldClose())
   {

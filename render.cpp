@@ -1,22 +1,58 @@
 #include "render.hpp"
 #include "map.hpp"
+#include <cmath>
+
+#define tile_size 128
+#define player_size tile_size * 2
+#define player_animation_frames 4
+
+Texture2D player_moving_right_tex;
+Texture2D ground_tex;
+Texture2D breakable_ground_tex;
+
+Texture2D scale(Texture2D tex, int width, int height) {
+  Image im = LoadImageFromTexture(tex);
+  ImageResize(&im, width, height);
+  return LoadTextureFromImage(im);
+}
+
+void init_resources() {
+  player_moving_right_tex = scale(LoadTexture("assets/player_moving_right.png"), player_size * player_animation_frames, player_size);
+  ground_tex = scale(LoadTexture("assets/ground.png"), tile_size, tile_size);
+  breakable_ground_tex = scale(LoadTexture("assets/breakable_ground.png"), tile_size, tile_size);
+} 
 
 void draw_map(Map const& map) {
-  static float tile_size = 128.0f;
   for (int y = 0; y < map.height; ++y)
     for (int x = 0; x < map.width; ++x)
     {
-      if (!(int)map.tiles[y][x]) continue;
-      DrawRectangleRec(
-        {
-          x * tile_size, 
-          y * tile_size,
-          tile_size,
-          tile_size
-        },
-        GREEN
-      );
+      Texture2D* tex;
+      switch (map.get(x, y)) {
+        case TileType::GROUND: {
+          tex = &ground_tex;
+          break;
+        }
+        case TileType::EMPTY: {
+          continue;
+        }
+        default: {
+          TraceLog(LOG_WARNING, "Tried to draw unknown tiletype in draw_map()");
+          continue;
+        }
+      }
+      int world_x = x * tile_size;
+      int world_y = y * tile_size;
+      //printf("drawing %d %d %d %d %d\n", ground_tex.format, ground_tex.height, ground_tex.id, ground_tex.mipmaps, ground_tex.width);
+      DrawTexture(*tex, world_x, world_y, WHITE);
     }
+}
+
+void render_player(Player const& player) {
+  const int fps = 12;
+
+  int frame = ((int)(GetTime() * fps)) % player_animation_frames;
+  Rectangle current_frame{frame * player_size, 0, player_size, player_size};
+  DrawTextureRec(player_moving_right_tex, current_frame, Vector2{player.x, player.y}, WHITE);
 }
 
 void render_scene(
@@ -31,8 +67,6 @@ void render_scene(
   
   //  Draw ground
   draw_map(map);
-
-  static float const tile_size = 128.0f;
   
   int const rows = map.tiles.size();
   int const cols = map.tiles.empty() ? 
@@ -61,7 +95,7 @@ void render_scene(
     3, BLUE    
   );
 
-  DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
+  render_player(player);
   EndMode2D();
 
   // Draw HUD

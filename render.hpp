@@ -6,6 +6,7 @@
 #include "player.hpp"
 #include "map.hpp"
 
+void init_resources();
 
 void render_scene(
   RenderTexture2D, 
