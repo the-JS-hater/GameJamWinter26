@@ -37,7 +37,7 @@ void draw_background(Camera2D camera){
     float const parallax = -0.5;
     for(int i = -3; i < backgroundAmount - 3; i++){
       for(int j = -2; j < 2; j++){
-        DrawTexture(backgrounds[i+3], camera.target.x + fmod(camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 80*i - camera.offset.y, WHITE);
+        DrawTexture(backgrounds[i+3], camera.target.x + fmod((i * 100 % 123) + camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 80*i - camera.offset.y, WHITE);
       }
     }
   return;
