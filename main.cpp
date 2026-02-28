@@ -20,7 +20,7 @@ int main()
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
 
-  Player player = Player(300, 400);
+  Player player = Player(100, 100);
   Map test_level = Map("levels/test.wad");
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
@@ -54,7 +54,7 @@ int main()
 
     // --- Update --- //
     { 
-      float const jump_impulse = 500.0f; 
+      float const jump_impulse = 600.0f; 
       float const accel = 500.0f;
     
       if (a_input) player.facing = Facing::LEFT;
@@ -68,76 +68,42 @@ int main()
       // collision
       static float const tile_size = 96.0f;
       
-      int const rows = test_level.tiles.size();
-      int const cols = test_level.tiles.empty() ? 
-          0 : test_level.tiles[0].size();
-      printf("%d\n", std::max(-1, (int)std::floor(player.x / tile_size)));
-      int const left = std::max(-1, (int)std::floor(player.x / tile_size));
-      int const right =
-        std::min(cols - 1,(int)std::floor((player.x + player.w) / tile_size));
-      int const top = std::max(0, (int)std::floor(player.y / tile_size));
-      int const bottom =
-        std::min(rows - 1, (int)std::floor((player.y + player.h) / tile_size));
-      
       // jumping
       static float jump_cooldown {0};
       static bool is_grounded {false};
 
       jump_cooldown -= 1.0f * dt;
       if (jump_cooldown < 0.0f) jump_cooldown = 0.0f;
-      if (w_input and jump_cooldown < 0.001f)
+      if (w_input && jump_cooldown < 0.001f)
       {
-        jump_cooldown += 1.0f;
+        printf("jump");
+        jump_cooldown = 1.0f;
         player.dy -= jump_impulse;
         is_grounded = false;
       }
+      else {
+        is_grounded = true;
+      }
 
       player.dy += gravity * dt; 
-      { // vertical collision
-        bool top_collision = 
-          (int)test_level.get(left, top)
-          or 
-          (int)test_level.get(right, top);
-        bool bottom_collision = 
-          (int)test_level.get(left, bottom)
-          or 
-          (int)test_level.get(right, bottom);
-        if (top_collision) player.dy = std::fmax(0.0f, player.dy);
-        printf(
-          "player y: %f\nground below: %f\n\n", 
-          player.y + player.h, bottom * tile_size
-        );
-        if (bottom_collision and player.y + player.h - 0.5f > bottom * tile_size) 
-        {
-          player.dy = std::fmin(0.0f, player.dy);
-          is_grounded = true;
-        } else {
-          is_grounded = false;
-        }
-      }
       player.y += player.dy * dt;
-      { // horizontal collision
-        bool left_collision = 
-          (int)test_level.get(left, top)
-          or 
-          (!is_grounded and (int)test_level.get(left, bottom));
-        if (player.facing == Facing::LEFT and left_collision)
-        {
-          player.facing = Facing::RIGHT;
-          player.dx *= -1;
+      { // vertical collision
+        Rectangle player_rect;
+        if (player.dy > 0) {
+          player_rect = {player.x + player.w / 4, player.y + player.h, player.w / 2, 1};
         }
-        
-        bool right_collision = 
-          (int)test_level.get(right, top)
-          or 
-          (!is_grounded and (int)test_level.get(right, bottom));
-        if (player.facing == Facing::RIGHT and right_collision)
-        {
-          player.facing = Facing::LEFT;
-          player.dx *= -1;
+        else {
+          player_rect = {player.x + player.w / 4, player.y - 1, player.w / 2, 1};
+        }
+        for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
+          if (CheckCollisionRecs(player_rect, ground_rect)) {
+            printf("vert coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
+            player.y -= player.dy * dt;
+            player.dy = 0;
+            break;
+          }
         }
       }
-      
       // cap speed
       if (fabs(player.dx) > player.max_speed)
       {
@@ -147,6 +113,24 @@ int main()
       }
       // integrate horizontal movement
       player.x += player.dx * dt;
+      { // horizontal collision
+        Rectangle player_rect;
+        if (player.dx > 0) {
+          player_rect = {player.x + player.w, player.y + 1, 1, player.h - 2};
+        }
+        else {
+          player_rect = {player.x - 1, player.y + 1, 1, player.h - 2};
+        }
+        for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
+          if (CheckCollisionRecs(player_rect, ground_rect)) {
+            printf("horz coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
+            player.x += player.dx * dt;
+            player.dx *= -1;
+            player.dx = 0;
+            break;
+          }
+        }
+      }
 
       // update camera
       camera.target = {
