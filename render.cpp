@@ -44,7 +44,7 @@ void draw_background(Camera2D camera){
 }
 
 void draw_map(Map const& map) {
-  for (int y = 0; y < map.height; ++y)
+  for (int y = 0; y < map.height; ++y) {
     for (int x = 0; x < map.width; ++x)
     {
       Texture2D* tex;
@@ -65,6 +65,13 @@ void draw_map(Map const& map) {
       int world_y = y * tile_size;
       DrawTexture(*tex, world_x, world_y, WHITE);
     }
+  }
+  // Debug render map colliders:
+  /*
+  for (Rectangle rect : map.get_colliders(tile_size)) {
+    DrawRectangle(rect.x, rect.y, rect.width, rect.height, BROWN);
+  }
+  */
 }
 
 void render_player(Player const& player) {
@@ -75,13 +82,18 @@ void render_player(Player const& player) {
   DrawTextureRec(
     player_moving_right_tex, 
     current_frame, 
-    Vector2{player.x - 0.5f * player.w, player.y - 0.5f * player.h}, 
+    Vector2{player.x - player_size / 4, player.y - player_size / 4}, 
     WHITE
   );
   DrawRectangleLinesEx(
     {player.x, player.y, player.w, player.h},
     3,
     GREEN
+  );
+  DrawRectangleLinesEx(
+    {player.x + 1, player.y + player.h, player.w - 2, 100},
+    3,
+    BLUE
   );
 }
 

@@ -49,3 +49,22 @@ TileType Map::get(int x, int y) const {
   }
   return tiles[y][x];
 }
+
+std::vector<Rectangle> Map::get_colliders(float tile_size) const {
+  std::vector<Rectangle> colliders;
+  for (int local_y = 0; local_y < height; ++local_y) {
+    for (int local_x = 0; local_x < width; ++local_x) {
+      if (get(local_x, local_y) != TileType::EMPTY) {
+        float global_x = local_x * tile_size;
+        float global_y = local_y * tile_size;
+        colliders.push_back(Rectangle{
+          global_x,
+          global_y,
+          tile_size,
+          tile_size
+        });
+      }
+    }
+  }
+  return colliders;
+}

@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <raylib.h>
 #include <vector>
 #include <string>
 
@@ -17,4 +18,5 @@ struct Map {
   Map(std::string file_name);
   TileType get(int x, int y) const;
   void draw();
+  std::vector<Rectangle> get_colliders(float tile_size) const;
 };
