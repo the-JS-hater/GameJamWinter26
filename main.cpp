@@ -9,7 +9,6 @@
 #include "player.hpp"
 #include "map.hpp"
 
-
   
 int main()
 {
@@ -104,7 +103,11 @@ int main()
           or 
           (int)test_level.get(right, bottom);
         if (top_collision) player.dy = std::fmax(0.0f, player.dy);
-        if (bottom_collision) 
+        printf(
+          "player y: %f\nground below: %f\n\n", 
+          player.y + player.h, bottom * tile_size
+        );
+        if (bottom_collision and player.y + player.h - 0.5f > bottom * tile_size) 
         {
           player.dy = std::fmin(0.0f, player.dy);
           is_grounded = true;
