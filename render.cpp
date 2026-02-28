@@ -1,17 +1,37 @@
 #include "render.hpp"
+#include "map.hpp"
 
+void draw_map(Map const& map) {
+  static float tile_size = 128.0f;
+  for (int y = 0; y < map.height; ++y)
+    for (int x = 0; x < map.width; ++x)
+    {
+      if (!(int)map.tiles[y][x]) continue;
+      DrawRectangleRec(
+        {
+          x * tile_size, 
+          y * tile_size,
+          tile_size,
+          tile_size
+        },
+        GREEN
+      );
+    }
+}
 
 void render_scene(
   RenderTexture2D render_target, 
   Camera2D camera, 
-  Player player
+  Player player,
+  Map const& map
 ) {
   BeginTextureMode(render_target);
   ClearBackground(WHITE);
   BeginMode2D(camera);
   
   //  Draw ground
-  DrawRectangle(-1000, 0, 3000, 2000, GREEN);
+  // DrawRectangle(-1000, 0, 3000, 2000, GREEN);
+  draw_map(map);
   DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
 
   EndMode2D();

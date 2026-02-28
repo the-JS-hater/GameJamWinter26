@@ -4,6 +4,8 @@
 
 #include "render.hpp"
 #include "player.hpp"
+#include "map.hpp"
+
 
   
 int main()
@@ -16,7 +18,9 @@ int main()
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
 
-  Player player = Player(0, -128);
+  Player player = Player(0, 0);
+  Map test_level = Map("levels/test.wad");
+  printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
     { game_screen_w / 2.0f, game_screen_h / 2.0f }, // Offset
@@ -63,7 +67,6 @@ int main()
           -player.max_speed : 
           player.max_speed;
       }
-      printf("player dx: %f\n", player.dx);
       player.x += player.dx * dt;
       
       // jumping
@@ -91,7 +94,7 @@ int main()
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player);
+    render_scene(render_target, camera, player, test_level);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();
