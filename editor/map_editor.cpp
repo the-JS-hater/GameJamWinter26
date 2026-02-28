@@ -5,16 +5,13 @@
 #include <iostream>
 #include <fstream>
 
+#include "map_editor.hpp"
 #include "render.hpp"
-
-enum class TileType {
-  EMPTY,
-  GROUND
-};
 
 std::ostream& operator<<(std::ostream& os, const TileType& tile) {
   return os << (int)tile;
 }
+
 std::istream& operator>>(std::istream& is, TileType& tile) {
   int tile_type;
   is >> tile_type;
@@ -22,63 +19,76 @@ std::istream& operator>>(std::istream& is, TileType& tile) {
   return is;
 }
 
-struct Map {
-  std::vector<std::vector<TileType>> tiles;
-  int width, height;
+Map::Map(){}
 
-  Map() {
-    
-  }
-
-  Map(int width, int height) : width(width), height(height) {
-    for (int y = 0; y < width; y++) {
-      std::vector<TileType> row;
-      for (int x = 0; x < height; x++) {
-        row.push_back(TileType::EMPTY);
-      }
-      tiles.push_back(row);
+Map::Map(int width, int height) : width(width), height(height) {
+  for (int y = 0; y < width; y++) {
+    std::vector<TileType> row;
+    for (int x = 0; x < height; x++) {
+      row.push_back(TileType::EMPTY);
     }
+    tiles.push_back(row);
   }
+}
 
-  Map(std::string file_name) {
-    std::ifstream file;
-    file.open(file_name);
-    file >> width;
-    file >> height;
-    for (int y = 0; y < width; y++) {
-      std::vector<TileType> row;
-      for (int x = 0; x < height; x++) {
-        TileType tile;
-        file >> tile;
-        row.push_back(tile);
-      }
-      tiles.push_back(row);
+Map::Map(std::string file_name) {
+  std::ifstream file;
+  file.open(file_name);
+  file >> width;
+  file >> height;
+  for (int y = 0; y < width; y++) {
+    std::vector<TileType> row;
+    for (int x = 0; x < height; x++) {
+      TileType tile;
+      file >> tile;
+      row.push_back(tile);
     }
-    file.close();
+    tiles.push_back(row);
   }
+  file.close();
+}
 
-  void set(int x, int y, TileType tile) {
-    tiles[y][x] = tile;
-  }
+void Map::set(int x, int y, TileType tile) {
+  tiles[y][x] = tile;
+}
 
-  TileType get(int x, int y) {
-    return tiles[y][x];
-  }
+TileType Map::get(int x, int y) const {
+  return tiles[y][x];
+}
 
-  void write_to_file(std::string file_name) {
-    std::ofstream file;
-    file.open(file_name);
-    file << width << std::endl;
-    file << height << std::endl;
-    for (int y = 0; y < width; y++) {
-      for (int x = 0; x < height; x++) {
-        file << get(x, y) << " ";
-      }
-      file << std::endl;
+void Map::write_to_file(std::string file_name) const {
+  std::ofstream file;
+  file.open(file_name);
+  file << *this;
+  file.close();
+}
+
+std::ostream& operator<<(std::ostream& os, Map const&  map) {
+  os << map.width << std::endl;
+  os << map.height << std::endl;
+  for (int y = 0; y < map.height; y++) {
+    for (int x = 0; x < map.width; x++) {
+      os << map.get(x, y) << " ";
     }
-    file.close();
+    os << std::endl;
   }
-};
+}
+
+void handle_mouse(Map& map) {
+  if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    return;
+  }
+
+  const double tile_size = 32;
+
+  int mouse_x = GetMouseX();
+  int mouse_y = GetMouseY();
+
+  int tile_x = mouse_x / tile_size;
+  int tile_y = mouse_y / tile_size;
+
+  map.set(tile_x, tile_y, TileType::GROUND);
+}
 
 int main(int argc, char* argv[])
 {
@@ -123,9 +133,10 @@ int main(int argc, char* argv[])
     float w_input, a_input, s_input, d_input;
     float const dt = GetFrameTime();
 
+    handle_mouse(map);
 
     // --- Render --- //
-    render_scene(render_target, camera);
+    render_scene(render_target, camera, map);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
 

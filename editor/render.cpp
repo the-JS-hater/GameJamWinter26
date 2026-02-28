@@ -1,13 +1,22 @@
 #include "render.hpp"
 
 
-void render_scene(RenderTexture2D render_target, Camera2D camera)
+void render_scene(RenderTexture2D render_target, Camera2D camera, Map map)
 {
   BeginTextureMode(render_target);
   ClearBackground(WHITE);
   BeginMode2D(camera);
+
+  int tile_width = GetScreenWidth() / map.width;
+  int tile_height = GetScreenHeight() / map.height;
   
-  // Draw scene
+  for (int local_y = 0; local_y < map.height; ++local_y) {
+    int world_y = local_y * tile_height;
+    for (int local_x = 0; local_x < map.width; ++local_x) {
+      int world_x = local_x * tile_width;
+      DrawRectangle(world_x, world_y, )
+    }
+  }
 
   EndMode2D();
 
