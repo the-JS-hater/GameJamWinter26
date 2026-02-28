@@ -30,10 +30,38 @@ void render_scene(
   BeginMode2D(camera);
   
   //  Draw ground
-  // DrawRectangle(-1000, 0, 3000, 2000, GREEN);
   draw_map(map);
-  DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
 
+  static float const tile_size = 128.0f;
+  
+  int const rows = map.tiles.size();
+  int const cols = map.tiles.empty() ? 
+      0 : map.tiles[0].size();
+  int const left = std::max(0, (int)std::floor(player.x / tile_size));
+  int const right =
+    std::min(cols - 1,(int)std::floor((player.x + player.w) / tile_size));
+  int const top = std::max(0, (int)std::floor(player.y / tile_size));
+  int const bottom =
+    std::min(rows - 1, (int)std::floor((player.y + player.h) / tile_size));
+  
+  DrawRectangleLinesEx(
+    {(left + 1) * tile_size, top * tile_size, tile_size, tile_size},
+    3, BLUE
+  );
+  DrawRectangleLinesEx(
+    {(left + 1) * tile_size, bottom * tile_size, tile_size, tile_size},
+    3, BLUE        
+  );
+  DrawRectangleLinesEx(
+    {(right - 1) * tile_size, top * tile_size, tile_size, tile_size}, 
+    3, BLUE
+  );
+  DrawRectangleLinesEx(
+    {(right - 1) * tile_size, bottom * tile_size, tile_size, tile_size},
+    3, BLUE    
+  );
+
+  DrawRectangleRec({player.x, player.y, player.w, player.h}, RED);
   EndMode2D();
 
   // Draw HUD

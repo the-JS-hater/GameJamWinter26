@@ -20,7 +20,7 @@ int main()
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
 
-  Player player = Player(40, 40);
+  Player player = Player(300, 400);
   Map test_level = Map("levels/test.wad");
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
@@ -71,7 +71,6 @@ int main()
           player.max_speed;
       }
       player.x += player.dx * dt;
-        
 
       // collision
       static float const tile_size = 128.0f;
@@ -98,52 +97,29 @@ int main()
 
       { // horizontal collision
         bool left_collision = 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {left * tile_size, top * tile_size, tile_size, tile_size}
-          ) 
+          (int)test_level.get(left, top)
           or 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {left * tile_size, bottom * tile_size, tile_size, tile_size}
-          );
+          (int)test_level.get(left, bottom);
         if (player.facing == Facing::LEFT and left_collision)
           player.facing = Facing::RIGHT;
+        
         bool right_collision = 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {right * tile_size, top * tile_size, tile_size, tile_size}
-          ) 
+          (int)test_level.get(right, top)
           or 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {right * tile_size, bottom * tile_size, tile_size, tile_size}
-          );
+          (int)test_level.get(right, bottom);
         if (player.facing == Facing::RIGHT and right_collision)
           player.facing = Facing::LEFT;
       }
       player.dy += gravity * dt; 
       { // vertical collision
         bool top_collision = 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {left * tile_size, top * tile_size, tile_size, tile_size}
-          ) 
+          (int)test_level.get(left, top)
           or 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {right * tile_size, top * tile_size, tile_size, tile_size}
-          );
+          (int)test_level.get(right, top);
         bool bottom_collision = 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {left * tile_size, bottom * tile_size, tile_size, tile_size}
-          ) 
+          (int)test_level.get(left, bottom)
           or 
-          CheckCollisionRecs(
-            {player.x, player.y, player.w, player.h},
-            {right * tile_size, bottom * tile_size, tile_size, tile_size}
-          );
+          (int)test_level.get(right, bottom);
         if (top_collision or bottom_collision) player.dy = 0.0f;
       }
       player.y += player.dy * dt;
