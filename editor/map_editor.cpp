@@ -22,9 +22,9 @@ std::istream& operator>>(std::istream& is, TileType& tile) {
 Map::Map(){}
 
 Map::Map(int width, int height) : width(width), height(height) {
-  for (int y = 0; y < width; y++) {
+  for (int y = 0; y < height; y++) {
     std::vector<TileType> row;
-    for (int x = 0; x < height; x++) {
+    for (int x = 0; x < width; x++) {
       row.push_back(TileType::EMPTY);
     }
     tiles.push_back(row);
@@ -36,9 +36,9 @@ Map::Map(std::string file_name) {
   file.open(file_name);
   file >> width;
   file >> height;
-  for (int y = 0; y < width; y++) {
+  for (int y = 0; y < height; y++) {
     std::vector<TileType> row;
-    for (int x = 0; x < height; x++) {
+    for (int x = 0; x < width; x++) {
       TileType tile;
       file >> tile;
       row.push_back(tile);
@@ -49,6 +49,10 @@ Map::Map(std::string file_name) {
 }
 
 void Map::set(int x, int y, TileType tile) {
+  if (x < 0 || x >= width || y < 0 || y >= height) {
+    TraceLog(LOG_WARNING, "Tried to set tile on map at (%d, %d) to %d; but it was outside of map.", x, y, tile);
+    return;
+  }
   tiles[y][x] = tile;
 }
 
@@ -74,18 +78,17 @@ std::ostream& operator<<(std::ostream& os, Map const&  map) {
   }
 }
 
-void handle_mouse(Map& map) {
+void handle_mouse(Map& map, Camera2D& camera, RenderTexture2D render_target) {
   if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     return;
   }
 
-  const double tile_size = 32;
+  int tile_size = 128;
 
-  int mouse_x = GetMouseX();
-  int mouse_y = GetMouseY();
+  Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-  int tile_x = mouse_x / tile_size;
-  int tile_y = mouse_y / tile_size;
+  int tile_x = world_pos.x / tile_size;
+  int tile_y = world_pos.y / tile_size;
 
   map.set(tile_x, tile_y, TileType::GROUND);
 }
@@ -116,7 +119,7 @@ int main(int argc, char* argv[])
 
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
-  RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
+  RenderTexture2D render_target = LoadRenderTexture((int)game_screen_w, (int)game_screen_h);
 
   Camera2D camera {
     { game_screen_w / 2.0f, game_screen_h / 2.0f }, // Offset
@@ -133,7 +136,31 @@ int main(int argc, char* argv[])
     float w_input, a_input, s_input, d_input;
     float const dt = GetFrameTime();
 
-    handle_mouse(map);
+    w_input = IsKeyPressed(KEY_W);
+    a_input = IsKeyPressed(KEY_A);
+    s_input = IsKeyDown(KEY_S);
+    d_input = IsKeyPressed(KEY_D);
+
+    int dx = 0;
+    int dy = 0;
+    if (w_input) {
+      --dy;
+    }
+    if (a_input) {
+      --dx;
+    }
+    if (s_input) {
+      ++dy;
+    }
+    if (d_input) {
+      ++dx;
+    }
+
+    const int camera_move_speed = 5;
+    camera.offset.x += dx * camera_move_speed * dt;
+    camera.offset.y += dy * camera_move_speed * dt;
+
+    handle_mouse(map, camera, render_target);
 
     // --- Render --- //
     render_scene(render_target, camera, map);
