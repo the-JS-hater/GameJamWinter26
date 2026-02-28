@@ -2,8 +2,12 @@
 #include <raymath.h>
 #include <stdio.h>
 
+#include <algorithm>
+
 #include "render.hpp"
 #include "player.hpp"
+#include "map.hpp"
+
 
   
 int main()
@@ -16,7 +20,9 @@ int main()
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
 
-  Player player = Player(0, -128);
+  Player player = Player(40, 40);
+  Map test_level = Map("levels/test.wad");
+  printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
     { game_screen_w / 2.0f, game_screen_h / 2.0f }, // Offset
@@ -56,30 +62,89 @@ int main()
         player.dx +=  accel * dt;
       else
         player.dx -=  accel * dt;
-  
+    
+      // cap speed
       if (fabs(player.dx) > player.max_speed)
       {
         player.dx = player.dx < 0.0f ? 
           -player.max_speed : 
           player.max_speed;
       }
-      printf("player dx: %f\n", player.dx);
       player.x += player.dx * dt;
+        
+
+      // collision
+      static float const tile_size = 128.0f;
+      
+      int const rows = test_level.tiles.size();
+      int const cols = test_level.tiles.empty() ? 
+          0 : test_level.tiles[0].size();
+      int const left = std::max(0, (int)std::floor(player.x / tile_size));
+      int const right =
+        std::min(cols - 1,(int)std::floor((player.x + player.w) / tile_size));
+      int const top = std::max(0, (int)std::floor(player.y / tile_size));
+      int const bottom =
+        std::min(rows - 1, (int)std::floor((player.y + player.h) / tile_size));
       
       // jumping
       static float jump_cooldown {0};
-      
-      if (player.y + player.h > 0.0f and player.dy > 0.0f) player.dy = 0.0f;
-      if (player.y + player.h < 0.0f) 
-      {
-        player.dy += gravity * dt; 
-      }
       jump_cooldown -= 1.0f * dt;
       if (jump_cooldown < 0.0f) jump_cooldown = 0.0f;
       if (w_input and jump_cooldown < 0.001f)
       {
         jump_cooldown += 1.0f;
         player.dy -= jump_impulse;
+      }
+
+      { // horizontal collision
+        bool left_collision = 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {left * tile_size, top * tile_size, tile_size, tile_size}
+          ) 
+          or 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {left * tile_size, bottom * tile_size, tile_size, tile_size}
+          );
+        if (player.facing == Facing::LEFT and left_collision)
+          player.facing = Facing::RIGHT;
+        bool right_collision = 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {right * tile_size, top * tile_size, tile_size, tile_size}
+          ) 
+          or 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {right * tile_size, bottom * tile_size, tile_size, tile_size}
+          );
+        if (player.facing == Facing::RIGHT and right_collision)
+          player.facing = Facing::LEFT;
+      }
+      player.dy += gravity * dt; 
+      { // vertical collision
+        bool top_collision = 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {left * tile_size, top * tile_size, tile_size, tile_size}
+          ) 
+          or 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {right * tile_size, top * tile_size, tile_size, tile_size}
+          );
+        bool bottom_collision = 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {left * tile_size, bottom * tile_size, tile_size, tile_size}
+          ) 
+          or 
+          CheckCollisionRecs(
+            {player.x, player.y, player.w, player.h},
+            {right * tile_size, bottom * tile_size, tile_size, tile_size}
+          );
+        if (top_collision or bottom_collision) player.dy = 0.0f;
       }
       player.y += player.dy * dt;
       
@@ -91,7 +156,7 @@ int main()
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player);
+    render_scene(render_target, camera, player, test_level);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();

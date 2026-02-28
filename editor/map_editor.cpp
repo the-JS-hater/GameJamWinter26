@@ -8,6 +8,8 @@
 #include "map_editor.hpp"
 #include "render.hpp"
 
+int const tile_size = 128;
+
 std::ostream& operator<<(std::ostream& os, const TileType& tile) {
   return os << (int)tile;
 }
@@ -83,14 +85,14 @@ void handle_mouse(Map& map, Camera2D& camera, RenderTexture2D render_target) {
     return;
   }
 
-  int tile_size = 128;
 
   Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 
   int tile_x = world_pos.x / tile_size;
   int tile_y = world_pos.y / tile_size;
-
-  map.set(tile_x, tile_y, TileType::GROUND);
+  int value = (int)map.get(tile_x, tile_y);
+  ++value %= (int)TileType::ENDOFTYPES;
+  map.set(tile_x, tile_y, (TileType)value);
 }
 
 int main(int argc, char* argv[])
@@ -122,10 +124,9 @@ int main(int argc, char* argv[])
   RenderTexture2D render_target = LoadRenderTexture((int)game_screen_w, (int)game_screen_h);
 
   Camera2D camera {
-    { game_screen_w / 2.0f, game_screen_h / 2.0f }, // Offset
+    { 0, 0 }, // Offset
     { // Camera target (rotation and zoom origin)
-      game_screen_w / 2.0f, 
-      game_screen_h / 2.0f
+      0, 0
     },
     0.0f, // Camera rotation in degrees
     1.0f // Camera zoom (scaling) 
@@ -136,29 +137,40 @@ int main(int argc, char* argv[])
     float w_input, a_input, s_input, d_input;
     float const dt = GetFrameTime();
 
-    w_input = IsKeyPressed(KEY_W);
-    a_input = IsKeyPressed(KEY_A);
+    w_input = IsKeyDown(KEY_W);
+    a_input = IsKeyDown(KEY_A);
     s_input = IsKeyDown(KEY_S);
-    d_input = IsKeyPressed(KEY_D);
+    d_input = IsKeyDown(KEY_D);
 
     int dx = 0;
     int dy = 0;
     if (w_input) {
-      --dy;
-    }
-    if (a_input) {
-      --dx;
-    }
-    if (s_input) {
       ++dy;
     }
-    if (d_input) {
+    if (a_input) {
       ++dx;
     }
+    if (s_input) {
+      --dy;
+    }
+    if (d_input) {
+      --dx;
+    }
 
-    const int camera_move_speed = 5;
-    camera.offset.x += dx * camera_move_speed * dt;
-    camera.offset.y += dy * camera_move_speed * dt;
+    const int camera_move_speed = 100;
+    float next_x = camera.offset.x + dx * camera_move_speed * dt;
+    float next_y = camera.offset.y + dy * camera_move_speed * dt;
+    std::cout << next_x << next_y << std::endl;
+    std::cout << game_screen_w*2 - (tile_size * map.width)*3 - 10 << std::endl;
+    std::cout << game_screen_h * 2 - (tile_size * map.height) * 3 << std::endl;
+    if (next_x > 10 || next_x < game_screen_w * 2 - (tile_size * map.width) * 3 - 10) {
+      next_x = camera.offset.x;
+    }
+    if (next_y > 10 || next_y < game_screen_h * 2 - (tile_size * map.height) * 3 - 10) {
+      next_y = camera.offset.y;
+    }
+    camera.offset.x = next_x;
+    camera.offset.y = next_y;
 
     handle_mouse(map, camera, render_target);
 
