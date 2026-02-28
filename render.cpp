@@ -45,19 +45,19 @@ void render_scene(
     std::min(rows - 1, (int)std::floor((player.y + player.h) / tile_size));
   
   DrawRectangleLinesEx(
-    {(left + 1) * tile_size, top * tile_size, tile_size, tile_size},
+    {(left) * tile_size, top * tile_size, tile_size, tile_size},
     3, BLUE
   );
   DrawRectangleLinesEx(
-    {(left + 1) * tile_size, bottom * tile_size, tile_size, tile_size},
+    {(left) * tile_size, bottom * tile_size, tile_size, tile_size},
     3, BLUE        
   );
   DrawRectangleLinesEx(
-    {(right - 1) * tile_size, top * tile_size, tile_size, tile_size}, 
+    {(right) * tile_size, top * tile_size, tile_size, tile_size}, 
     3, BLUE
   );
   DrawRectangleLinesEx(
-    {(right - 1) * tile_size, bottom * tile_size, tile_size, tile_size},
+    {(right) * tile_size, bottom * tile_size, tile_size, tile_size},
     3, BLUE    
   );
 

@@ -78,7 +78,8 @@ int main()
       int const rows = test_level.tiles.size();
       int const cols = test_level.tiles.empty() ? 
           0 : test_level.tiles[0].size();
-      int const left = std::max(0, (int)std::floor(player.x / tile_size));
+      printf("%d\n", std::max(-1, (int)std::floor(player.x / tile_size)));
+      int const left = std::max(-1, (int)std::floor(player.x / tile_size));
       int const right =
         std::min(cols - 1,(int)std::floor((player.x + player.w) / tile_size));
       int const top = std::max(0, (int)std::floor(player.y / tile_size));
@@ -101,14 +102,20 @@ int main()
           or 
           (int)test_level.get(left, bottom);
         if (player.facing == Facing::LEFT and left_collision)
+        {
           player.facing = Facing::RIGHT;
+          player.dx *= -1;
+        }
         
         bool right_collision = 
           (int)test_level.get(right, top)
           or 
           (int)test_level.get(right, bottom);
         if (player.facing == Facing::RIGHT and right_collision)
+        {
           player.facing = Facing::LEFT;
+          player.dx *= -1;
+        }
       }
       player.dy += gravity * dt; 
       { // vertical collision
@@ -120,7 +127,8 @@ int main()
           (int)test_level.get(left, bottom)
           or 
           (int)test_level.get(right, bottom);
-        if (top_collision or bottom_collision) player.dy = 0.0f;
+        if (top_collision) player.dy = std::fmax(0.0f, player.dy);
+        if (bottom_collision) player.dy = std::fmin(0.0f, player.dy);
       }
       player.y += player.dy * dt;
       
