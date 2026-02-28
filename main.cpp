@@ -67,7 +67,7 @@ int main()
         player.dx -=  accel * dt;
     
       // collision
-      static float const tile_size = 64.0f;
+      static float const tile_size = 96.0f;
       
       int const rows = test_level.tiles.size();
       int const cols = test_level.tiles.empty() ? 
