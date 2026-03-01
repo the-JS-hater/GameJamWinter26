@@ -26,6 +26,7 @@ bool has_won(Player player, Vector2 goal_pos) {
   return Vector2Distance(player_pos, goal_pos) < TILE_SIZE;
 }
 
+bool dash = true;
   
 int main()
 {
@@ -61,12 +62,13 @@ int main()
   {
     float const dt = GetFrameTime();
     float const gravity = 750.0f; 
-    float w_input, a_input, s_input, d_input;
+    float w_input, a_input, s_input, d_input, shift_input;
 
     // --- Input --- //
     {
       w_input = IsKeyPressed(KEY_W);
       a_input = IsKeyPressed(KEY_A);
+      shift_input = IsKeyPressed(KEY_LEFT_SHIFT);
       //s_input = IsKeyDown(KEY_S);
       d_input = IsKeyPressed(KEY_D);
 
@@ -83,12 +85,21 @@ int main()
     
       if (a_input) {
         player.facing = Facing::LEFT;
-        player.dx -= 200.0;
       }
       if (d_input) {
         player.facing = Facing::RIGHT;
-        player.dx += 200.0;
       }
+
+      if (shift_input && dash) {
+        if (player.facing == Facing::RIGHT){
+          player.dx += 800;
+        }
+        if (player.facing == Facing::LEFT){
+          player.dx -= 800;
+        }
+        dash = false;
+      }
+
       
       if (player.facing == Facing::RIGHT)
         player.dx +=  accel * dt;
@@ -130,6 +141,7 @@ int main()
             player.y -= player.dy * dt;
             player.dy = 0.25 * -player.dy;
             jump_cooldown = 0.0f;
+            dash = true;
             break;
           }
         }
@@ -138,8 +150,8 @@ int main()
       if (fabs(player.dx) > player.max_speed)
       {
         player.dx = player.dx < 0.0f ? 
-          -player.max_speed : 
-          player.max_speed;
+          player.dx + 10.0 : 
+          player.dx - 10.0;
       }
       // integrate horizontal movement
       player.x += player.dx * dt;
