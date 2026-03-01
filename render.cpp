@@ -43,7 +43,7 @@ void init_resources() {
 
 void draw_background(Camera2D camera){
     float const parallax = -0.5;
-    float const amount = 0.3;
+    float const amount = 0.15;
     for(int i = 0; i < backgroundAmount; i++){
       for(int j = -2; j < 2; j++){
         SetTextureFilter(backgrounds[i], 0);
