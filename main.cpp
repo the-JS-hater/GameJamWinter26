@@ -234,12 +234,16 @@ int main()
     }
 
     if (player.y > test_level.height * TILE_SIZE) {
-      PlaySound(loseSound);
+      if (!(state == GameState::GAME_OVER)){
+        PlaySound(loseSound);
+      }
       state = GameState::GAME_OVER;
     }
 
     if (has_won(player, test_level.goal_pos)) {
-      PlaySound(winSound);
+      if (!(state == GameState::WON)){
+        PlaySound(winSound);
+      }
       state = GameState::WON;
     }
 
