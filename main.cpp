@@ -14,6 +14,7 @@ int main()
 {
   int win_w{1280}, win_h{720};
   char const *win_title{"TITLE"}; 
+  SetTraceLogLevel(LOG_ERROR);
   InitWindow(win_w, win_h, win_title);
 
   float res_w {1920.0f}, res_h {1080.0f};
@@ -22,7 +23,7 @@ int main()
   SetTextureFilter(render_target.texture, TEXTURE_FILTER_POINT);
 
   Player player = Player(100, 100);
-  Map test_level = Map("levels/test.wad");
+  Map test_level = Map("levels/jump_tests.wad");
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
@@ -58,7 +59,7 @@ int main()
     // --- Update --- //
     { 
       float const jump_impulse = 600.0f; 
-      float const accel = 500.0f;
+      float const accel = 750.0f;
     
       if (a_input) player.facing = Facing::LEFT;
       if (d_input) player.facing = Facing::RIGHT;
@@ -100,9 +101,9 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
-            printf("vert coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
             player.y -= player.dy * dt;
             player.dy = 0.25 * -player.dy;
+            jump_cooldown = 0.0f;
             break;
           }
         }
@@ -126,10 +127,10 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
-            printf("horz coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
             player.x += player.dx * dt;
             player.dx *= -1;
             player.dx = 0;
+            jump_cooldown = 0.0f;
             break;
           }
         }
@@ -137,8 +138,8 @@ int main()
 
       // update camera
       camera.target = {
-        Lerp(camera.target.x, player.x, 0.001), 
-        Lerp(camera.target.y, player.y, 0.001)
+        Lerp(camera.target.x, player.x, 0.1), 
+        Lerp(camera.target.y, player.y, 0.1)
       };
     }
 
