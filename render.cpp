@@ -86,15 +86,24 @@ void draw_map(Map const& map) {
 
 void render_player(Player const& player) {
   const int fps = 12;
+  int flipped = 1;
+  if(player.dx < 0){
+    flipped = -1;
+  }
 
   int frame = ((int)(GetTime() * fps)) % player_animation_frames;
-  Rectangle current_frame{frame * player_size, 0, player_size, player_size};
-  DrawTextureRec(
+  Rectangle current_frame{frame * player_size, 0, player_size, player_size * flipped} ;
+  Rectangle dest{player.x + player_size / 4, player.y + player_size / 4, player_size, player_size}; // Center of rectangle
+  float angle = std::atan2(player.dy, player.dx);
+  DrawTexturePro(
     player_moving_right_tex, 
     current_frame, 
-    Vector2{player.x - player_size / 4, player.y - player_size / 4}, 
+    dest,
+    Vector2{player_size/2, player_size/2}, 
+    angle * (180 / 3.1415),
     WHITE
   );
+  /*
   DrawRectangleLinesEx(
     {player.x, player.y, player.w, player.h},
     3,
@@ -105,6 +114,7 @@ void render_player(Player const& player) {
     3,
     BLUE
   );
+  */
 }
 
 void render_scene(
