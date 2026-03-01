@@ -104,9 +104,9 @@ int main()
 
       
       if (player.facing == Facing::RIGHT)
-        player.dx +=  accel * dt;
+        player.dx += accel * dt;
       else
-        player.dx -=  accel * dt;
+        player.dx -= accel * dt;
     
       // collision
       static float const tile_size = 48.0f;
@@ -151,12 +151,7 @@ int main()
         }
       }
       // cap speed
-      if (fabs(player.dx) > player.max_speed)
-      {
-        player.dx = player.dx < 0.0f ? 
-          player.dx + 10.0 : 
-          player.dx - 10.0;
-      }
+      player.dx -= player.dx * 0.8f * dt;
       // integrate horizontal movement
       float prev_x = player.x;
       player.x += player.dx * dt;
@@ -172,7 +167,7 @@ int main()
           if (CheckCollisionRecs(player_rect, ground_rect)) {
             player.x = prev_x;
             player.x -= player.dx * dt;
-            player.dx *= -1;
+            player.dx *= -0.9f;
             player.facing = player.facing == Facing::LEFT ? Facing::RIGHT : Facing::LEFT;
             jump_cooldown = 0.0f;
             break;
