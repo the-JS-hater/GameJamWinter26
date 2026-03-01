@@ -229,6 +229,8 @@ int main()
         // reset game
         player.x = test_level.start_pos.x * TILE_SIZE;
         player.y = test_level.start_pos.y * TILE_SIZE;
+        player.dx = 0;
+        player.dy = 0;
         timer = 0;
         state = GameState::PLAYING;
       }
