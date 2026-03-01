@@ -150,7 +150,7 @@ void render_scene(
   // Draw HUD
   int pos_x = 10, pos_y = 10, font_size = 40;
   const char *text = TextFormat(
-    "FPS: %d\nTime: %f.2", 
+    "FPS: %d\nTime: %.2f", 
     GetFPS(),
     timer
   );
