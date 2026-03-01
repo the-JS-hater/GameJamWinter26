@@ -213,6 +213,7 @@ int main()
       };
     }
     else if (state == GameState::START) {
+      player.facing = Facing::RIGHT;
       state = GameState::PLAYING;
     }
     else {  // update for game over state and win state
@@ -220,8 +221,10 @@ int main()
         // reset game
         player.x = test_level.start_pos.x * TILE_SIZE;
         player.y = test_level.start_pos.y * TILE_SIZE;
+        player.dx = 0;
+        player.dy = 0;
         timer = 0;
-        state = GameState::PLAYING;
+        state = GameState::START;
       }
     }
     if (DEBUG) {
@@ -232,7 +235,7 @@ int main()
         player.dx = 0;
         player.dy = 0;
         timer = 0;
-        state = GameState::PLAYING;
+        state = GameState::START;
       }
     }
 
