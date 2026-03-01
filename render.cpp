@@ -76,6 +76,7 @@ void draw_map(Map const& map) {
       DrawTexture(*tex, world_x, world_y, WHITE);
     }
   }
+  DrawRectangle(map.goal_pos.x * tile_size, map.goal_pos.y * tile_size, tile_size, tile_size, GREEN);
   // Debug render map colliders:
   /*
   for (Rectangle rect : map.get_colliders(tile_size)) {

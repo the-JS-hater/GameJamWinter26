@@ -12,6 +12,8 @@ enum class TileType {
 struct Map {
   std::vector<std::vector<TileType>> tiles;
   int width, height;
+  Vector2 start_pos;
+  Vector2 goal_pos;
 
   Map();
   Map(int width, int height);

@@ -9,12 +9,30 @@
 #include "player.hpp"
 #include "map.hpp"
 
+
+#define TILE_SIZE 48
+
+
+enum class GameState {
+  PLAYING,
+  WON,
+  GAME_OVER,
+};
+
+
+bool has_won(Player player, Vector2 goal_pos) {
+  Vector2 player_pos{player.x, player.y};
+  goal_pos *= TILE_SIZE;
+  return Vector2Distance(player_pos, goal_pos) < TILE_SIZE;
+}
+
   
 int main()
 {
   int win_w{1280}, win_h{720};
   char const *win_title{"TITLE"}; 
   InitWindow(win_w, win_h, win_title);
+  GameState state = GameState::PLAYING;
 
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
@@ -23,6 +41,7 @@ int main()
 
   Player player = Player(100, 100);
   Map test_level = Map("levels/test.wad");
+  test_level.goal_pos = {10, 10};
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
@@ -41,7 +60,6 @@ int main()
   while(!WindowShouldClose())
   {
     float const dt = GetFrameTime();
-    timer += 1.0f * dt; 
     float const gravity = 750.0f; 
     float w_input, a_input, s_input, d_input;
 
@@ -56,7 +74,9 @@ int main()
     }
 
     // --- Update --- //
+    if (state == GameState::PLAYING)
     { 
+      timer += 1.0f * dt; 
       float const jump_impulse = 600.0f; 
       float const accel = 500.0f;
     
@@ -140,6 +160,19 @@ int main()
         Lerp(camera.target.x, player.x, 0.001), 
         Lerp(camera.target.y, player.y, 0.001)
       };
+    }
+    else {  // update for game over state and win state
+      if (IsKeyPressed(KEY_R)) {
+        // reset game
+        player.x = test_level.start_pos.x;
+        player.y = test_level.start_pos.y;
+        timer = 0;
+        state = GameState::PLAYING;
+      }
+    }
+
+    if (has_won(player, test_level.goal_pos)) {
+      state = GameState::WON;
     }
 
     // --- Render --- //
