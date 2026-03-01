@@ -10,7 +10,7 @@ Texture2D player_moving_right_tex;
 Texture2D ground_tex;
 Texture2D breakable_ground_tex;
 
-int const backgroundAmount = 6;
+int const backgroundAmount = 9;
 Texture2D backgrounds[backgroundAmount];
 
 
@@ -20,24 +20,33 @@ Texture2D scale(Texture2D tex, int width, int height) {
   return LoadTextureFromImage(im);
 }
 
+Texture2D scaleGood(Texture2D texture, int width, int height){
+  SetTextureFilter(texture, TEXTURE_FILTER_POINT);
+  return scale(texture, width, height);
+}
+
 void init_resources() {
   player_moving_right_tex = scale(LoadTexture("assets/player_moving_right.png"), player_size * player_animation_frames, player_size);
   ground_tex = scale(LoadTexture("assets/ground.png"), tile_size, tile_size);
   breakable_ground_tex = scale(LoadTexture("assets/breakable_ground.png"), tile_size, tile_size);
 
-  backgrounds[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
-  backgrounds[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
-  backgrounds[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
-  backgrounds[3] = scale(LoadTexture("assets/house1.png"), 1920, 1080);
-  backgrounds[4] = scale(LoadTexture("assets/house2.png"), 1920, 1080);
-  backgrounds[5] = scale(LoadTexture("assets/house3.png"), 1920, 1080);
+  backgrounds[0] = scaleGood(LoadTexture("assets/sky1.png"), 1920, 1080);
+  backgrounds[1] = scaleGood(LoadTexture("assets/sky2.png"), 1920, 1080);
+  backgrounds[2] = scaleGood(LoadTexture("assets/sky3.png"), 1920, 1080);
+  backgrounds[3] = scaleGood(LoadTexture("assets/mountains1.png"), 1920, 1080);
+  backgrounds[4] = scaleGood(LoadTexture("assets/mountains2.png"), 1920, 1080);
+  backgrounds[5] = scaleGood(LoadTexture("assets/mountains3.png"), 1920, 1080);
+  backgrounds[6] = scaleGood(LoadTexture("assets/house1.png"), 1920, 1080);
+  backgrounds[7] = scaleGood(LoadTexture("assets/house2.png"), 1920, 1080);
+  backgrounds[8] = scaleGood(LoadTexture("assets/house3.png"), 1920, 1080);
 } 
 
 void draw_background(Camera2D camera){
     float const parallax = -0.5;
-    float const amount = 0.5;
+    float const amount = 0.3;
     for(int i = 0; i < backgroundAmount; i++){
       for(int j = -2; j < 2; j++){
+        SetTextureFilter(backgrounds[i], 0);
         DrawTexture(backgrounds[i], camera.target.x + fmod(((i * 600 % 823) + camera.target.x * (i + 1) * parallax)*amount, 1920) + j * 1920, camera.target.y + 80*i - camera.offset.y, WHITE);
       }
     }
@@ -106,7 +115,7 @@ void render_scene(
   float const timer
 ) {
   BeginTextureMode(render_target);
-  ClearBackground(WHITE);
+  ClearBackground({63, 63, 116, 0xff});
   BeginMode2D(camera);
 
   draw_background(camera);
