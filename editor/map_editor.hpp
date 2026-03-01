@@ -20,6 +20,7 @@ struct Map {
   std::vector<std::vector<TileType>> tiles;
   int width, height;
   int spawn_x, spawn_y;
+  int goal_x, goal_y;
 
   Map();
   Map(int width, int height);

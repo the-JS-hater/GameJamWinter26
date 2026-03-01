@@ -9,6 +9,23 @@
 #include "player.hpp"
 #include "map.hpp"
 
+
+#define TILE_SIZE 48
+
+
+enum class GameState {
+  PLAYING,
+  WON,
+  GAME_OVER,
+};
+
+
+bool has_won(Player player, Vector2 goal_pos) {
+  Vector2 player_pos{player.x, player.y};
+  goal_pos *= TILE_SIZE;
+  return Vector2Distance(player_pos, goal_pos) < TILE_SIZE;
+}
+
   
 int main()
 {
@@ -16,14 +33,15 @@ int main()
   char const *win_title{"TITLE"}; 
   SetTraceLogLevel(LOG_ERROR);
   InitWindow(win_w, win_h, win_title);
+  GameState state = GameState::PLAYING;
 
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
   SetTextureFilter(render_target.texture, TEXTURE_FILTER_POINT);
 
-  Player player = Player(100, 100);
   Map test_level = Map("levels/jump_tests.wad");
+  Player player = Player(test_level.start_pos.x * TILE_SIZE, test_level.start_pos.y * TILE_SIZE);
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
@@ -42,7 +60,6 @@ int main()
   while(!WindowShouldClose())
   {
     float const dt = GetFrameTime();
-    timer += 1.0f * dt; 
     float const gravity = 750.0f; 
     float w_input, a_input, s_input, d_input;
 
@@ -57,7 +74,9 @@ int main()
     }
 
     // --- Update --- //
+    if (state == GameState::PLAYING)
     { 
+      timer += 1.0f * dt; 
       float const jump_impulse = 600.0f; 
       float const accel = 750.0f;
     
@@ -141,6 +160,19 @@ int main()
         Lerp(camera.target.x, player.x, 0.1), 
         Lerp(camera.target.y, player.y, 0.1)
       };
+    }
+    else {  // update for game over state and win state
+      if (IsKeyPressed(KEY_R)) {
+        // reset game
+        player.x = test_level.start_pos.x * TILE_SIZE;
+        player.y = test_level.start_pos.y * TILE_SIZE;
+        timer = 0;
+        state = GameState::PLAYING;
+      }
+    }
+
+    if (has_won(player, test_level.goal_pos)) {
+      state = GameState::WON;
     }
 
     // --- Render --- //
