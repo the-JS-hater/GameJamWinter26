@@ -1,0 +1,4 @@
+Vilgot: 1
+Morgan: 5
+Oscar:  4
+Ola:    2
