@@ -31,6 +31,10 @@ Map::Map(std::string file_name) {
   file.open(file_name);
   file >> this->width;
   file >> this->height;
+  file >> this->start_pos.x;
+  file >> this->start_pos.y;
+  file >> this->goal_pos.x;
+  file >> this->goal_pos.y;
   for (int y = 0; y < this->width; y++) {
     std::vector<TileType> row;
     for (int x = 0; x < this->height; x++) {

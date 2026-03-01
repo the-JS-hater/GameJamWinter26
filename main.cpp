@@ -40,9 +40,8 @@ int main()
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
   SetTextureFilter(render_target.texture, TEXTURE_FILTER_POINT);
 
-  Player player = Player(100, 100);
   Map test_level = Map("levels/jump_tests.wad");
-  test_level.goal_pos = {10, 10};
+  Player player = Player(test_level.start_pos.x * TILE_SIZE, test_level.start_pos.y * TILE_SIZE);
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
   Camera2D camera {
@@ -165,8 +164,8 @@ int main()
     else {  // update for game over state and win state
       if (IsKeyPressed(KEY_R)) {
         // reset game
-        player.x = test_level.start_pos.x;
-        player.y = test_level.start_pos.y;
+        player.x = test_level.start_pos.x * TILE_SIZE;
+        player.y = test_level.start_pos.y * TILE_SIZE;
         timer = 0;
         state = GameState::PLAYING;
       }
