@@ -101,7 +101,7 @@ int main()
           if (CheckCollisionRecs(player_rect, ground_rect)) {
             printf("vert coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
             player.y -= player.dy * dt;
-            player.dy = 0;
+            player.dy = 0.25 * -player.dy;
             break;
           }
         }
