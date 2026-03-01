@@ -19,6 +19,10 @@ enum class GameState {
   GAME_OVER,
 };
 
+const int drillsoundAmount = 4;
+Sound drillsounds[drillsoundAmount];
+Music music;
+
 
 bool has_won(Player player, Vector2 goal_pos) {
   Vector2 player_pos{player.x, player.y};
@@ -27,7 +31,7 @@ bool has_won(Player player, Vector2 goal_pos) {
 }
 
 bool dash = true;
-  
+
 int main()
 {
   int win_w{1280}, win_h{720};
@@ -35,6 +39,19 @@ int main()
   SetTraceLogLevel(LOG_ERROR);
   InitWindow(win_w, win_h, win_title);
   GameState state = GameState::PLAYING;
+  InitAudioDevice();
+  
+  drillsounds[0] = LoadSound("assets/drill-001.wav");
+  drillsounds[1] = LoadSound("assets/drill-002.wav");
+  drillsounds[2] = LoadSound("assets/drill-003.wav");
+  drillsounds[3] = LoadSound("assets/drill-004.wav");
+  music = LoadMusicStream("assets/dirll-muzak.wav");
+  PlayMusicStream(music);
+  float pan = 0.0f;               // Default audio pan center [-1.0f..1.0f]
+  SetMusicPan(music, pan);
+
+  float volume = 1.0f;            // Default audio volume [0.0f..1.0f]
+  SetMusicVolume(music, volume);
 
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
@@ -78,6 +95,7 @@ int main()
     // --- Update --- //
     if (state == GameState::PLAYING)
     { 
+      UpdateMusicStream(music);
       timer += 1.0f * dt; 
       float const jump_impulse = 600.0f; 
       const float accel = 750.0f;
@@ -97,6 +115,8 @@ int main()
         if (player.facing == Facing::LEFT){
           player.dx -= 800;
         }
+        int randIndex = rand() % drillsoundAmount;
+        PlaySound(drillsounds[randIndex]);
         dash = false;
       }
 
