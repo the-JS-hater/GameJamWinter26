@@ -54,7 +54,7 @@ int main()
       game_screen_h / 2.0f
     },
     0.0f, // Camera rotation in degrees
-    1.0f // Camera zoom (scaling) 
+    0.5f // Camera zoom (scaling) 
   };
 
   init_resources();
