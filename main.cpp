@@ -78,10 +78,17 @@ int main()
     { 
       timer += 1.0f * dt; 
       float const jump_impulse = 600.0f; 
-      float const accel = 750.0f;
+      const float accel = 750.0f;
+      player.max_speed = 400.0f;
     
-      if (a_input) player.facing = Facing::LEFT;
-      if (d_input) player.facing = Facing::RIGHT;
+      if (a_input) {
+        player.facing = Facing::LEFT;
+        player.dx -= 200.0;
+      }
+      if (d_input) {
+        player.facing = Facing::RIGHT;
+        player.dx += 200.0;
+      }
       
       if (player.facing == Facing::RIGHT)
         player.dx +=  accel * dt;
