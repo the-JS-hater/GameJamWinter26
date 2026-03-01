@@ -36,11 +36,13 @@ int main()
 
   init_resources();
 
+  static float timer {0.0f}; 
   while(!WindowShouldClose())
   {
-    float w_input, a_input, s_input, d_input;
     float const dt = GetFrameTime();
+    timer += 1.0f * dt; 
     float const gravity = 750.0f; 
+    float w_input, a_input, s_input, d_input;
 
     // --- Input --- //
     {
@@ -140,7 +142,7 @@ int main()
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player, test_level);
+    render_scene(render_target, camera, player, test_level, timer);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();
