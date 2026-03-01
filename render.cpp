@@ -2,13 +2,16 @@
 #include "map.hpp"
 #include <cmath>
 
-#define tile_size 96
-#define player_size tile_size * 2
+#define tile_size 48
+#define player_size tile_size * 4
 #define player_animation_frames 4
 
 Texture2D player_moving_right_tex;
 Texture2D ground_tex;
 Texture2D breakable_ground_tex;
+
+int const mountainAmount = 3;
+Texture2D mountains[mountainAmount];
 
 Texture2D scale(Texture2D tex, int width, int height) {
   Image im = LoadImageFromTexture(tex);
@@ -20,7 +23,21 @@ void init_resources() {
   player_moving_right_tex = scale(LoadTexture("assets/player_moving_right.png"), player_size * player_animation_frames, player_size);
   ground_tex = scale(LoadTexture("assets/ground.png"), tile_size, tile_size);
   breakable_ground_tex = scale(LoadTexture("assets/breakable_ground.png"), tile_size, tile_size);
+
+  mountains[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
+  mountains[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
+  mountains[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
 } 
+
+void draw_background(Camera2D camera){
+    float const parallax = -0.5;
+    for(int i = 0; i < mountainAmount; i++){
+      for(int j = -2; j < 2; j++){
+        DrawTexture(mountains[i], camera.target.x + fmod(camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 40*i - camera.offset.y, WHITE);
+      }
+    }
+  return;
+}
 
 void draw_map(Map const& map) {
   for (int y = 0; y < map.height; ++y) {
@@ -85,6 +102,8 @@ void render_scene(
   BeginTextureMode(render_target);
   ClearBackground(WHITE);
   BeginMode2D(camera);
+
+  draw_background(camera);
   
   //  Draw ground
   draw_map(map);

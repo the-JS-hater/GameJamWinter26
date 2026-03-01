@@ -66,7 +66,7 @@ int main()
         player.dx -=  accel * dt;
     
       // collision
-      static float const tile_size = 96.0f;
+      static float const tile_size = 48.0f;
       
       // jumping
       static float jump_cooldown {0};

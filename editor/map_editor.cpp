@@ -8,7 +8,7 @@
 #include "map_editor.hpp"
 #include "render.hpp"
 
-int const tile_size = 128;
+int const tile_size = 48;
 
 std::ostream& operator<<(std::ostream& os, const TileType& tile) {
   return os << (int)tile;

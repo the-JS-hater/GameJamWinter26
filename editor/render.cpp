@@ -23,7 +23,7 @@ void render_scene(RenderTexture2D render_target, Camera2D camera, Map map)
   ClearBackground(WHITE);
   BeginMode2D(camera);
 
-  int tile_size = 128;
+  int tile_size = 48;
   
   for (int local_y = 0; local_y < map.height; ++local_y) {
     int world_y = local_y * tile_size;
