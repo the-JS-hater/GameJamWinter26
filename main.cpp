@@ -13,14 +13,6 @@
 #define TILE_SIZE 48
 #define DEBUG true
 
-
-enum class GameState {
-  START,
-  PLAYING,
-  WON,
-  GAME_OVER,
-};
-
 const int drillsoundamount = 4;
 Sound drillsounds[drillsoundamount];
 
@@ -236,12 +228,16 @@ int main()
       }
     }
 
+    if (player.y > test_level.height * TILE_SIZE) {
+      state = GameState::GAME_OVER;
+    }
+
     if (has_won(player, test_level.goal_pos)) {
       state = GameState::WON;
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player, test_level, timer);
+    render_scene(render_target, camera, player, test_level, timer, state);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();

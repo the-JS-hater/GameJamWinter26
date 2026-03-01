@@ -6,6 +6,13 @@
 #include "player.hpp"
 #include "map.hpp"
 
+enum class GameState {
+  START,
+  PLAYING,
+  WON,
+  GAME_OVER,
+};
+
 void init_resources();
 
 void render_scene(
@@ -13,7 +20,8 @@ void render_scene(
   Camera2D, 
   Player, 
   Map const&,
-  float const
+  float const,
+  GameState const
 );
 
 void render_to_screen(
