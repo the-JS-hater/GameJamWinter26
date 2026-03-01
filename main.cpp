@@ -20,6 +20,9 @@ const int hitSoundAmount = 4;
 Sound hitSounds[hitSoundAmount];
 Music music;
 
+Sound winSound;
+Sound loseSound;
+
 
 bool has_won(Player player, Vector2 goal_pos) {
   Vector2 player_pos{player.x, player.y};
@@ -38,6 +41,8 @@ int main()
   GameState state = GameState::PLAYING;
   InitAudioDevice();
   
+  winSound = LoadSound("assets/win.wav");
+  loseSound = LoadSound("assets/lose.wav");
   drillsounds[0] = LoadSound("assets/drill-001.wav");
   drillsounds[1] = LoadSound("assets/drill-002.wav");
   drillsounds[2] = LoadSound("assets/drill-003.wav");
@@ -229,10 +234,12 @@ int main()
     }
 
     if (player.y > test_level.height * TILE_SIZE) {
+      PlaySound(loseSound);
       state = GameState::GAME_OVER;
     }
 
     if (has_won(player, test_level.goal_pos)) {
+      PlaySound(winSound);
       state = GameState::WON;
     }
 
