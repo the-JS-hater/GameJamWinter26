@@ -43,7 +43,7 @@ void init_resources() {
 
 void draw_background(Camera2D camera){
     float const parallax = -0.5;
-    float const amount = 0.3;
+    float const amount = 0.15;
     for(int i = 0; i < backgroundAmount; i++){
       for(int j = -2; j < 2; j++){
         SetTextureFilter(backgrounds[i], 0);
@@ -123,7 +123,8 @@ void render_scene(
   Camera2D camera, 
   Player player,
   Map const& map,
-  float const timer
+  float const timer,
+  GameState const state
 ) {
   BeginTextureMode(render_target);
   ClearBackground({63, 63, 116, 0xff});
@@ -150,11 +151,28 @@ void render_scene(
   // Draw HUD
   int pos_x = 10, pos_y = 10, font_size = 40;
   const char *text = TextFormat(
-    "FPS: %d\nTime: %f.2", 
+    "FPS: %d\nTime: %.2f", 
     GetFPS(),
     timer
   );
   DrawText(text, pos_x, pos_y, font_size, BLACK);
+
+  if (state == GameState::GAME_OVER) {
+    DrawRectangle(0, 0, 1920, 1280, (Color){ 230, 41, 55, 100 });
+    const char *game_over_text = TextFormat(
+      "Game Over!\nYour time was %.2f\nPress R to restart",
+      timer
+    );
+    DrawText(game_over_text, 1920 / 2, 1280 / 2, 60, BLACK);
+  }
+  else if (state == GameState::WON) {
+    DrawRectangle(0, 0, 1920, 1280, (Color){ 0, 228, 48, 100 });
+    const char *game_over_text = TextFormat(
+      "Congratulations! You Won!\nYour time was %.2f\nPress R to restart",
+      timer
+    );
+    DrawText(game_over_text, 1920 / 2, 1280 / 2, 60, BLACK);
+  }
   EndTextureMode();
 }
 

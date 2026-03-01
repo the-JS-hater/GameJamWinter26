@@ -13,13 +13,12 @@
 #define TILE_SIZE 48
 #define DEBUG true
 
+const int drillsoundamount = 4;
+Sound drillsounds[drillsoundamount];
 
-enum class GameState {
-  START,
-  PLAYING,
-  WON,
-  GAME_OVER,
-};
+const int hitSoundAmount = 4;
+Sound hitSounds[hitSoundAmount];
+Music music;
 
 
 bool has_won(Player player, Vector2 goal_pos) {
@@ -29,14 +28,31 @@ bool has_won(Player player, Vector2 goal_pos) {
 }
 
 bool dash = true;
-  
+
 int main()
 {
   int win_w{1280}, win_h{720};
   char const *win_title{"TITLE"}; 
   SetTraceLogLevel(LOG_ERROR);
   InitWindow(win_w, win_h, win_title);
-  GameState state = GameState::START;
+  GameState state = GameState::PLAYING;
+  InitAudioDevice();
+  
+  drillsounds[0] = LoadSound("assets/drill-001.wav");
+  drillsounds[1] = LoadSound("assets/drill-002.wav");
+  drillsounds[2] = LoadSound("assets/drill-003.wav");
+  drillsounds[3] = LoadSound("assets/drill-004.wav");
+  music = LoadMusicStream("assets/dirll-muzak.wav");
+  hitSounds[0] = LoadSound("assets/hit-001.wav");
+  hitSounds[1] = LoadSound("assets/hit-002.wav");
+  hitSounds[2] = LoadSound("assets/hit-003.wav");
+  hitSounds[3] = LoadSound("assets/hit-004.wav");
+  PlayMusicStream(music);
+  float pan = 0.0f;               // Default audio pan center [-1.0f..1.0f]
+  SetMusicPan(music, pan);
+
+  float volume = 0.6f;            // Default audio volume [0.0f..1.0f]
+  SetMusicVolume(music, volume);
 
   float res_w {1920.0f}, res_h {1080.0f};
   float game_screen_w{1920.0f}, game_screen_h{1080.0f};
@@ -68,7 +84,7 @@ int main()
 
     // --- Input --- //
     {
-      w_input = IsKeyPressed(KEY_W);
+      w_input = IsKeyPressed(KEY_W) || IsKeyPressed(KEY_SPACE);
       a_input = IsKeyPressed(KEY_A);
       shift_input = IsKeyPressed(KEY_LEFT_SHIFT);
       //s_input = IsKeyDown(KEY_S);
@@ -80,6 +96,7 @@ int main()
     // --- Update --- //
     if (state == GameState::PLAYING)
     { 
+      UpdateMusicStream(music);
       timer += 1.0f * dt; 
       float const jump_impulse = 600.0f; 
       const float accel = 750.0f;
@@ -99,6 +116,8 @@ int main()
         if (player.facing == Facing::LEFT){
           player.dx -= 800;
         }
+        int randIndex = rand() % drillsoundamount;
+        PlaySound(drillsounds[randIndex]);
         dash = false;
       }
 
@@ -141,6 +160,10 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
+            if (std::abs(player.dy) > 200){
+              int randIndex = rand() % hitSoundAmount;
+              PlaySound(hitSounds[randIndex]);
+            }
             player.y = prev_y;
             player.y -= player.dy * dt;
             player.dy = 0.25 * -player.dy;
@@ -165,6 +188,8 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
+            int randIndex = rand() % hitSoundAmount;
+            PlaySound(hitSounds[randIndex]);
             player.x = prev_x;
             player.x -= player.dx * dt;
             player.dx *= -0.9f;
@@ -203,12 +228,16 @@ int main()
       }
     }
 
+    if (player.y > test_level.height * TILE_SIZE) {
+      state = GameState::GAME_OVER;
+    }
+
     if (has_won(player, test_level.goal_pos)) {
       state = GameState::WON;
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player, test_level, timer);
+    render_scene(render_target, camera, player, test_level, timer, state);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();
