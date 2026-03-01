@@ -199,6 +199,7 @@ int main()
             player.x -= player.dx * dt;
             player.dx *= -0.9f;
             player.facing = player.facing == Facing::LEFT ? Facing::RIGHT : Facing::LEFT;
+            dash = true;
             jump_cooldown = 0.0f;
             break;
           }
