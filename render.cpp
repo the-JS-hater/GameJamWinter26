@@ -10,8 +10,14 @@ Texture2D player_moving_right_tex;
 Texture2D ground_tex;
 Texture2D breakable_ground_tex;
 
+<<<<<<< HEAD
 int const mountainAmount = 3;
 Texture2D mountains[mountainAmount];
+=======
+int const backgroundAmount = 6;
+Texture2D backgrounds[backgroundAmount];
+
+>>>>>>> c9d965b05c91217d4a07fb8f1f8a73f6a5f7d496
 
 Texture2D scale(Texture2D tex, int width, int height) {
   Image im = LoadImageFromTexture(tex);
@@ -24,16 +30,31 @@ void init_resources() {
   ground_tex = scale(LoadTexture("assets/ground.png"), tile_size, tile_size);
   breakable_ground_tex = scale(LoadTexture("assets/breakable_ground.png"), tile_size, tile_size);
 
+<<<<<<< HEAD
   mountains[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
   mountains[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
   mountains[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
+=======
+  backgrounds[0] = scale(LoadTexture("assets/mountains1.png"), 1920, 1080);
+  backgrounds[1] = scale(LoadTexture("assets/mountains2.png"), 1920, 1080);
+  backgrounds[2] = scale(LoadTexture("assets/mountains3.png"), 1920, 1080);
+  backgrounds[3] = scale(LoadTexture("assets/house1.png"), 1920, 1080);
+  backgrounds[4] = scale(LoadTexture("assets/house2.png"), 1920, 1080);
+  backgrounds[5] = scale(LoadTexture("assets/house3.png"), 1920, 1080);
+>>>>>>> c9d965b05c91217d4a07fb8f1f8a73f6a5f7d496
 } 
 
 void draw_background(Camera2D camera){
     float const parallax = -0.5;
+<<<<<<< HEAD
     for(int i = 0; i < mountainAmount; i++){
       for(int j = -2; j < 2; j++){
         DrawTexture(mountains[i], camera.target.x + fmod(camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 40*i - camera.offset.y, WHITE);
+=======
+    for(int i = -3; i < backgroundAmount - 3; i++){
+      for(int j = -2; j < 2; j++){
+        DrawTexture(backgrounds[i+3], camera.target.x + fmod((i * 100 % 123) + camera.target.x * (i + 1) * parallax, 1920) + j * 1920, camera.target.y + 80*i - camera.offset.y, WHITE);
+>>>>>>> c9d965b05c91217d4a07fb8f1f8a73f6a5f7d496
       }
     }
   return;

@@ -20,7 +20,7 @@ inline Color get_color_of(TileType tileType) {
 void render_scene(RenderTexture2D render_target, Camera2D camera, Map map)
 {
   BeginTextureMode(render_target);
-  ClearBackground(WHITE);
+  ClearBackground(BLACK);
   BeginMode2D(camera);
 
   int tile_size = 48;
@@ -33,6 +33,8 @@ void render_scene(RenderTexture2D render_target, Camera2D camera, Map map)
       DrawRectangle(world_x, world_y, tile_size, tile_size, color);
     }
   }
+
+  DrawCircle(map.spawn_x * tile_size + tile_size/2, map.spawn_y * tile_size + tile_size/2, tile_size/2, GREEN);
 
   EndMode2D();
 

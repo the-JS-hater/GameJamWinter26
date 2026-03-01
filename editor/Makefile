@@ -18,7 +18,7 @@ $(TARGET): $(OBJECTS)
 default: $(TARGET)
 all: default
 run: all
-	./$(TARGET)
+	./$(TARGET) test
 
 clean:
 	-rm -f *.o
