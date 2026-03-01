@@ -2,8 +2,8 @@
 #include "map.hpp"
 #include <cmath>
 
-#define tile_size 96
-#define player_size tile_size * 2
+#define tile_size 48
+#define player_size tile_size * 4
 #define player_animation_frames 4
 
 Texture2D player_moving_right_tex;
@@ -102,7 +102,8 @@ void render_scene(
   RenderTexture2D render_target, 
   Camera2D camera, 
   Player player,
-  Map const& map
+  Map const& map,
+  float const timer
 ) {
   BeginTextureMode(render_target);
   ClearBackground(WHITE);
@@ -129,8 +130,9 @@ void render_scene(
   // Draw HUD
   int pos_x = 10, pos_y = 10, font_size = 40;
   const char *text = TextFormat(
-    "FPS: %d", 
-    GetFPS()
+    "FPS: %d\nTime: %f.2", 
+    GetFPS(),
+    timer
   );
   DrawText(text, pos_x, pos_y, font_size, BLACK);
   EndTextureMode();

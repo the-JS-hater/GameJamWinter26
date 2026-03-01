@@ -12,7 +12,8 @@ void render_scene(
   RenderTexture2D, 
   Camera2D, 
   Player, 
-  Map const&
+  Map const&,
+  float const
 );
 
 void render_to_screen(

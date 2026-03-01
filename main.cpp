@@ -36,11 +36,13 @@ int main()
 
   init_resources();
 
+  static float timer {0.0f}; 
   while(!WindowShouldClose())
   {
-    float w_input, a_input, s_input, d_input;
     float const dt = GetFrameTime();
+    timer += 1.0f * dt; 
     float const gravity = 750.0f; 
+    float w_input, a_input, s_input, d_input;
 
     // --- Input --- //
     {
@@ -66,7 +68,7 @@ int main()
         player.dx -=  accel * dt;
     
       // collision
-      static float const tile_size = 96.0f;
+      static float const tile_size = 48.0f;
       
       // jumping
       static float jump_cooldown {0};
@@ -99,7 +101,7 @@ int main()
           if (CheckCollisionRecs(player_rect, ground_rect)) {
             printf("vert coll at (%f, %f)\n", ground_rect.x, ground_rect.y);
             player.y -= player.dy * dt;
-            player.dy = 0;
+            player.dy = 0.25 * -player.dy;
             break;
           }
         }
@@ -140,7 +142,7 @@ int main()
     }
 
     // --- Render --- //
-    render_scene(render_target, camera, player, test_level);
+    render_scene(render_target, camera, player, test_level, timer);
     render_to_screen(render_target, game_screen_w, game_screen_h);
   }
   CloseWindow();

@@ -8,7 +8,7 @@
 #include "map_editor.hpp"
 #include "render.hpp"
 
-int const tile_size = 128;
+int const tile_size = 48;
 
 std::ostream& operator<<(std::ostream& os, const TileType& tile) {
   return os << (int)tile;
@@ -23,7 +23,21 @@ std::istream& operator>>(std::istream& is, TileType& tile) {
 
 Map::Map(){}
 
-Map::Map(int width, int height) : width(width), height(height) {
+Map::Map(int width, int height) : 
+  width(width), height(height), spawn_x(0), spawn_y(0)
+{
+  for (int y = 0; y < height; y++) {
+    std::vector<TileType> row;
+    for (int x = 0; x < width; x++) {
+      row.push_back(TileType::EMPTY);
+    }
+    tiles.push_back(row);
+  }
+}
+
+Map::Map(int width, int height, int spawn_x, int spawn_y) : 
+  width(width), height(height), spawn_x(spawn_x), spawn_y(spawn_y) 
+{
   for (int y = 0; y < height; y++) {
     std::vector<TileType> row;
     for (int x = 0; x < width; x++) {
@@ -38,6 +52,7 @@ Map::Map(std::string file_name) {
   file.open(file_name);
   file >> width;
   file >> height;
+  file >> spawn_x >> spawn_y;
   for (int y = 0; y < height; y++) {
     std::vector<TileType> row;
     for (int x = 0; x < width; x++) {
@@ -55,10 +70,30 @@ void Map::set(int x, int y, TileType tile) {
     TraceLog(LOG_WARNING, "Tried to set tile on map at (%d, %d) to %d; but it was outside of map.", x, y, tile);
     return;
   }
+  if (x == spawn_x && y == spawn_y) {
+    TraceLog(LOG_WARNING, "Tried to set tile on map at (%d, %d) to %d; but it was spawn.", x, y, tile);
+    return;
+  }
   tiles[y][x] = tile;
 }
 
+void Map::set_spawn(int x, int y) {
+  if (x < 0 || x >= width || y < 0 || y >= height) {
+    TraceLog(LOG_WARNING, "Tried to set spawn on map at (%d, %d); but it was outside of map.", x, y);
+    return;
+  }
+  if (get(x, y) != TileType::EMPTY) {
+    TraceLog(LOG_WARNING, "Tried to set spawn on map at (%d, %d); but it was not empty.", x, y);
+    return;
+  }
+  spawn_x = x;
+  spawn_y = y;
+}
+
 TileType Map::get(int x, int y) const {
+  if (x < 0 || x >= this->width || y < 0 || y >= this->height) {
+    return TileType::EMPTY;
+  }
   return tiles[y][x];
 }
 
@@ -72,6 +107,7 @@ void Map::write_to_file(std::string file_name) const {
 std::ostream& operator<<(std::ostream& os, Map const&  map) {
   os << map.width << std::endl;
   os << map.height << std::endl;
+  os << map.spawn_x << " " << map.spawn_y << std::endl;
   for (int y = 0; y < map.height; y++) {
     for (int x = 0; x < map.width; x++) {
       os << map.get(x, y) << " ";
@@ -81,7 +117,7 @@ std::ostream& operator<<(std::ostream& os, Map const&  map) {
 }
 
 void handle_mouse(Map& map, Camera2D& camera, RenderTexture2D render_target) {
-  if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+  if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
     return;
   }
 
@@ -90,7 +126,12 @@ void handle_mouse(Map& map, Camera2D& camera, RenderTexture2D render_target) {
 
   int tile_x = world_pos.x / tile_size;
   int tile_y = world_pos.y / tile_size;
-  int value = (int)map.get(tile_x, tile_y);
+  TileType tile = map.get(tile_x, tile_y);
+  if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+    map.set_spawn(tile_x, tile_y);
+    return;
+  }
+  int value = (int)tile;
   ++value %= (int)TileType::ENDOFTYPES;
   map.set(tile_x, tile_y, (TileType)value);
 }
@@ -115,7 +156,7 @@ int main(int argc, char* argv[])
     file_name = argv[3];
   }
   else {
-    std::cout << "Wrong number of args!" << std::endl;
+    TraceLog(LOG_FATAL, "Wrong number of args!");
     return -1;
   }
 
@@ -157,16 +198,13 @@ int main(int argc, char* argv[])
       --dx;
     }
 
-    const int camera_move_speed = 100;
+    const int camera_move_speed = 1000;
     float next_x = camera.offset.x + dx * camera_move_speed * dt;
     float next_y = camera.offset.y + dy * camera_move_speed * dt;
-    std::cout << next_x << next_y << std::endl;
-    std::cout << game_screen_w*2 - (tile_size * map.width)*3 - 10 << std::endl;
-    std::cout << game_screen_h * 2 - (tile_size * map.height) * 3 << std::endl;
-    if (next_x > 10 || next_x < game_screen_w * 2 - (tile_size * map.width) * 3 - 10) {
+    if (next_x > 10 || next_x < win_w - (tile_size * map.width) - 10) {
       next_x = camera.offset.x;
     }
-    if (next_y > 10 || next_y < game_screen_h * 2 - (tile_size * map.height) * 3 - 10) {
+    if (next_y > 10 || next_y < win_h - (tile_size * map.height) - 10) {
       next_y = camera.offset.y;
     }
     camera.offset.x = next_x;
