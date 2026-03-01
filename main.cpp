@@ -11,9 +11,11 @@
 
 
 #define TILE_SIZE 48
+#define DEBUG true
 
 
 enum class GameState {
+  START,
   PLAYING,
   WON,
   GAME_OVER,
@@ -58,7 +60,7 @@ int main()
   RenderTexture2D render_target = LoadRenderTexture(game_screen_w, game_screen_h);
   SetTextureFilter(render_target.texture, TEXTURE_FILTER_POINT);
 
-  Map test_level = Map("levels/jump_tests.wad");
+  Map test_level = Map("levels/level2.wad");
   Player player = Player(test_level.start_pos.x * TILE_SIZE, test_level.start_pos.y * TILE_SIZE);
   printf("Size of map: %d * %d\n", test_level.width, test_level.height);
 
@@ -122,9 +124,9 @@ int main()
 
       
       if (player.facing == Facing::RIGHT)
-        player.dx +=  accel * dt;
+        player.dx += accel * dt;
       else
-        player.dx -=  accel * dt;
+        player.dx -= accel * dt;
     
       // collision
       static float const tile_size = 48.0f;
@@ -147,6 +149,7 @@ int main()
       }
 
       player.dy += gravity * dt; 
+      float prev_y = player.y;
       player.y += player.dy * dt;
       { // vertical collision
         Rectangle player_rect;
@@ -158,6 +161,7 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
+            player.y = prev_y;
             player.y -= player.dy * dt;
             player.dy = 0.25 * -player.dy;
             jump_cooldown = 0.0f;
@@ -167,13 +171,9 @@ int main()
         }
       }
       // cap speed
-      if (fabs(player.dx) > player.max_speed)
-      {
-        player.dx = player.dx < 0.0f ? 
-          player.dx + 10.0 : 
-          player.dx - 10.0;
-      }
+      player.dx -= player.dx * 0.8f * dt;
       // integrate horizontal movement
+      float prev_x = player.x;
       player.x += player.dx * dt;
       { // horizontal collision
         Rectangle player_rect;
@@ -185,9 +185,10 @@ int main()
         }
         for (Rectangle ground_rect : test_level.get_colliders(tile_size)) {
           if (CheckCollisionRecs(player_rect, ground_rect)) {
-            player.x += player.dx * dt;
-            player.dx *= -1;
-            player.dx = 0;
+            player.x = prev_x;
+            player.x -= player.dx * dt;
+            player.dx *= -0.9f;
+            player.facing = player.facing == Facing::LEFT ? Facing::RIGHT : Facing::LEFT;
             jump_cooldown = 0.0f;
             break;
           }
@@ -196,11 +197,23 @@ int main()
 
       // update camera
       camera.target = {
-        Lerp(camera.target.x, player.x, 0.1), 
-        Lerp(camera.target.y, player.y, 0.1)
+        Lerp(camera.target.x, player.x + 96, 0.2), 
+        Lerp(camera.target.y, player.y + 96, 0.2)
       };
     }
+    else if (state == GameState::START) {
+      state = GameState::PLAYING;
+    }
     else {  // update for game over state and win state
+      if (IsKeyPressed(KEY_R)) {
+        // reset game
+        player.x = test_level.start_pos.x * TILE_SIZE;
+        player.y = test_level.start_pos.y * TILE_SIZE;
+        timer = 0;
+        state = GameState::PLAYING;
+      }
+    }
+    if (DEBUG) {
       if (IsKeyPressed(KEY_R)) {
         // reset game
         player.x = test_level.start_pos.x * TILE_SIZE;

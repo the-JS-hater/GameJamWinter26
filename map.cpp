@@ -35,9 +35,9 @@ Map::Map(std::string file_name) {
   file >> this->start_pos.y;
   file >> this->goal_pos.x;
   file >> this->goal_pos.y;
-  for (int y = 0; y < this->width; y++) {
+  for (int y = 0; y < this->height; y++) {
     std::vector<TileType> row;
-    for (int x = 0; x < this->height; x++) {
+    for (int x = 0; x < this->width; x++) {
       TileType tile;
       file >> tile;
       row.push_back(tile);
